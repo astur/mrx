@@ -1,0 +1,30 @@
+{
+  "private": true,
+  "name": "mrx",
+  "version": "0.0.0",
+  "description": "Bla-bla-bla",
+  "main": "index.js",
+  "scripts": {
+    "test": "jshint . --exclude node_modules --reporter node_modules/jshint-stylish/ ; tape tests/*.js | tap-spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/astur/mrx.git"
+  },
+  "bugs": {
+    "url": "https://github.com/astur/mrx/issues"
+  },
+  "homepage": "https://github.com/astur/mrx",
+  "devDependencies": {
+    "jshint": "^2.8.0",
+    "jshint-stylish": "^2.0.1",
+    "tap-spec": "^4.0.2",
+    "tape": "^4.0.1"
+  },
+  "keywords": [
+    "mrx",
+    "mrx"
+  ],
+  "author": "astur <astur@yandex.ru> (http://kozlov.am/)",
+  "license": "MIT"
+}
