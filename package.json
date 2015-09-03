@@ -1,8 +1,8 @@
 {
   "private": true,
   "name": "mrx",
-  "version": "0.0.0",
-  "description": "Bla-bla-bla",
+  "version": "0.0.1",
+  "description": "Simple database for weblinks",
   "main": "index.js",
   "scripts": {
     "test": "jshint . --exclude node_modules --reporter node_modules/jshint-stylish/ ; tape tests/*.js | tap-spec"
@@ -22,7 +22,6 @@
     "tape": "^4.0.1"
   },
   "keywords": [
-    "mrx",
     "mrx"
   ],
   "author": "astur <astur@yandex.ru> (http://kozlov.am/)",
