@@ -1,7 +1,9 @@
 var fs = require('fs');
 
 function MRX(){
+
     if(!(this instanceof MRX)) {return new MRX();}
+
     var $ = [];
     var self = this;
     var _type = function(o) {
@@ -33,30 +35,30 @@ function MRX(){
             return;
         }
         if (_type(a) === 'Object') {
-            if (a.type || a.type === 'folder') {
+            if (a.type && a.children) {
                 self.add(a.children);
             } else if (a.url) {
                 self.add(a.url);
             } else if (a.href) {
                 self.add(a.href);
             } else {
-                throw new Error('Can add this');
+                throw new Error('Can\'t add this');
             }
             return;
         }
         if (_type(a) !== 'String') {
-            throw new Error('Can add this');
+            throw new Error('Can\'t add this');
         }
         //url correctoins
         //other magic
         $.push(a);
     };
 
-    this.get = function(i){
+    this.get = function(i){ //TEST
         return $[i];
     };
 
-    this.last = function(){
+    this.last = function(){ //TEST
         return $[this.count()-1];
     };
 
@@ -66,7 +68,7 @@ function MRX(){
         return $.filter(function(v) {return v.indexOf(q) !== -1;});
     };
 
-    this.load = function(filename, enc){
+    this.load = function(filename, enc){ //TEST
         enc = enc || 'utf-8';
 
         var mre = /<a\s[^>]*(href\s*=\s*(\")?htt)[^>]*>/gi;
@@ -90,7 +92,7 @@ function MRX(){
         this.add(src);
     };
 
-    this.save = function(filename){
+    this.save = function(filename){ //TEST
         fs.writeFileSync(filename, $.join('\n'));
         //save to file (json, html, ...)
         //.bak, ~file or kind of...
