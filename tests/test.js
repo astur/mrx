@@ -1,20 +1,15 @@
 var tape = require('tape');
-var MRX = require('../');
-var mrx = MRX();
+var mrx = require('../')();
 
-tape.test.skip('interface', function (t) {
+tape.test('interface', function (t) {
 
-    t.ok(typeof MRX === 'function', 'MRX is Function');
     t.ok(typeof mrx === 'object', 'mrx is Object');
 
     t.ok(typeof mrx.clear === 'function', 'mrx has method "clear"');
     t.ok(typeof mrx.count === 'function', 'mrx has method "count"');
     t.ok(typeof mrx.add === 'function', 'mrx has method "add"');
-    t.ok(typeof mrx.get === 'function', 'mrx has method "get"');
-    t.ok(typeof mrx.last === 'function', 'mrx has method "last"');
     t.ok(typeof mrx.find === 'function', 'mrx has method "find"');
-    t.ok(typeof mrx.load === 'function', 'mrx has method "load"');
-    t.ok(typeof mrx.save === 'function', 'mrx has method "save"');
+    t.ok(typeof mrx.check === 'function', 'mrx has method "check"');
 
     t.end();
 });
@@ -38,19 +33,47 @@ tape.test('base', function (t) {
     mrx.add(['http://ferra.ru/', 'http://price.ru/'], 'http://ya.ru/');
 
     t.same(mrx.count(), 5, 'count mrx items after group add');
-    t.same(mrx.last(), 'http://ya.ru/', 'get last item');
-    t.same(mrx.get(0), 'http://yandex.ru/', 'get first item');
-
-    mrx.save(__dirname + '/links.raw');
 
     mrx.clear();
-    t.same(mrx.count(), 0, 'empty mrx');
-    
-    mrx.load(__dirname + '/links.raw');
 
-    t.same(mrx.count(), 5, 'loaded from file');
+    t.end();
+});
 
-    require('fs').unlinkSync(__dirname + '/links.raw');
+tape.test('check', function (t) {
+
+    mrx.add(
+        ['https://sub.domain.com/',
+        'http://www.sub.domain.com/index.html',
+        'http://sub.domain.com/?q=bla',
+        'http://test.sub.domain.com/super/',
+        'http://other.domain.com/path/?bla=bla',
+        'https://domain.com/login/'],
+        'http://www.domain.org/',
+        ['http://domain2.com/',
+        'https://sub.domain3.com/index.html']
+    );
+
+    t.same(mrx.count(), 9, 'count mrx items after group add');
+
+    t.same(mrx.check('http://sub.domain.com/index.html'),
+        {
+            same: false,
+            similar: [
+                'https://sub.domain.com/',
+                'http://www.sub.domain.com/index.html'
+                ],
+            neighbours: [
+                'http://sub.domain.com/?q=bla'
+                ],
+            domains: {
+                'sub.domain.com': 4,
+                'domain.com': 6,
+                'domain': 7
+            }
+        },
+        'check link stats');
+
+    mrx.clear();
 
     t.end();
 });

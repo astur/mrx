@@ -68,6 +68,11 @@ function MRX(){
         return $.filter(function(v) {return v.indexOf(q) !== -1;});
     };
 
+    this.check = function(){
+        // TODO
+        return {};
+    };
+
     this.load = function(filename, enc){ //TEST
         enc = enc || 'utf-8';
 
