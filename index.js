@@ -63,9 +63,13 @@ function MRX(){
     };
 
     this.find = function(q){
-        // there will be magic
-        // String, Object, RegEx or (mb) Number
-        return $.filter(function(v) {return v.indexOf(q) !== -1;});
+        if (_type(q) === 'String') {
+            return $.indexOf(q) !== -1;
+        }
+        if (_type(q) === 'RegExp') {
+            return $.filter(function(v) {return q.test(v);});
+        }
+        throw new Error('Bad query for find');
     };
 
     this.check = function(){
