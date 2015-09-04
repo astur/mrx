@@ -40,7 +40,7 @@ tape.test('base', function (t) {
     t.end();
 });
 
-tape.test.skip('check', function (t) {
+tape.test('check', function (t) {
 
     mrx.add(
         ['https://sub.domain.com/',
@@ -55,24 +55,28 @@ tape.test.skip('check', function (t) {
     );
 
     t.same(mrx.count(), 9, 'count mrx items after group add');
+    var res = mrx.check('http://sub.domain.com/index.html');
 
-    t.same(mrx.check('http://sub.domain.com/index.html'),
+    t.same(res.same, false, 'check same link');
+
+    t.same(res.similar,
+        [
+        'https://sub.domain.com/',
+        'http://www.sub.domain.com/index.html'
+        ],
+        'check similar links');
+
+    t.same(res.neighbours,
+        ['http://sub.domain.com/?q=bla'],
+        'check link neighbours');
+
+    t.same(res.domains,
         {
-            same: false,
-            similar: [
-                'https://sub.domain.com/',
-                'http://www.sub.domain.com/index.html'
-                ],
-            neighbours: [
-                'http://sub.domain.com/?q=bla'
-                ],
-            domains: {
-                'sub.domain.com': 4,
-                'domain.com': 6,
-                'domain': 7
-            }
+            'sub.domain.com': 4,
+            'domain.com': 6,
+            'domain': 7
         },
-        'check link stats');
+        'check links on similar domains');
 
     mrx.clear();
 
