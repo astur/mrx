@@ -1,6 +1,6 @@
 # mrx
 
-Bla-bla-bla
+Checking correlations in weblink array
 
 [![Build Status][travis-image]][travis-url]
 [![NPM version][npm-image]][npm-url]
@@ -20,6 +20,7 @@ $ npm test
 ## Example
 
 ```js
+var mrx = require('mrx')();
 console.log('mrx');
 ```
 ----
