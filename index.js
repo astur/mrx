@@ -1,5 +1,3 @@
-var fs = require('fs');
-
 function MRX(){
 
     if(!(this instanceof MRX)) {return new MRX();}
@@ -52,14 +50,6 @@ function MRX(){
         //url correctoins
         //other magic
         $.push(a);
-    };
-
-    this.get = function(i){ //TEST
-        return $[i];
-    };
-
-    this.last = function(){ //TEST
-        return $[this.count()-1];
     };
 
     this.find = function(q){
@@ -119,36 +109,6 @@ function MRX(){
         }
 
         return res;
-    };
-
-    this.load = function(filename, enc){ //TEST
-        enc = enc || 'utf-8';
-
-        var mre = /<a\s[^>]*(href\s*=\s*(\")?htt)[^>]*>/gi;
-        var rre = /<a.*?href\s*=\s*(\")?(http[^"]+?)\1\s[^>]*>/ig;
-
-        var src = fs.readFileSync(filename, enc);
-
-        try {
-            src = JSON.parse(src);
-        } catch (e) {
-            if (mre.test(src)) {
-                src = src.match(mre);
-                for(var i = 0, l = src.length; i<l; i++) {
-                    src[i] = src[i].replace(rre, '$2');
-                    src[i] = src[i].replace('&amp;', '&');
-                }
-            } else {
-                src = src.split(/\s*\n\s*/);
-            }
-        }
-        this.add(src);
-    };
-
-    this.save = function(filename){ //TEST
-        fs.writeFileSync(filename, $.join('\n'));
-        //save to file (json, html, ...)
-        //.bak, ~file or kind of...
     };
 
 }
