@@ -17,16 +17,10 @@ npm install mrx
 $ npm test
 ```
 
-## Example
+## Usage
 
 ```js
 var mrx = require('mrx')();
-console.log('mrx');
-```
-----
-```bash
-$ node app.js
-mrx
 ```
 
 ## License

@@ -1,7 +1,6 @@
 {
-  "private": true,
   "name": "mrx",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Simple database for weblinks",
   "main": "index.js",
   "scripts": {
@@ -22,7 +21,10 @@
     "tape": "^4.0.1"
   },
   "keywords": [
-    "mrx"
+    "mrx",
+    "url",
+    "bookmarks",
+    "weblinks"
   ],
   "author": "astur <astur@yandex.ru> (http://kozlov.am/)",
   "license": "MIT"
