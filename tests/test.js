@@ -35,6 +35,9 @@ tape.test('base', function (t) {
     t.same(mrx.count(), 5, 'count mrx items after group add');
     t.ok(mrx.find('http://ya.ru/'), 'find by substring');
 
+    mrx.remove('http://ya.ru/');
+    t.notOk(mrx.find('http://ya.ru/'), 'item removed');
+
     mrx.clear();
 
     t.end();

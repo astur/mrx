@@ -52,6 +52,15 @@ function MRX(){
         $.push(a);
     };
 
+    this.remove = function(q){
+        var i = $.indexOf(q);
+        if (i > -1) {
+            $.splice(i, 1);
+            return true;
+        }
+        return false;
+    };
+
     this.find = function(q){
         if (_type(q) === 'String') {
             return $.indexOf(q) !== -1;
