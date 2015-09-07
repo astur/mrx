@@ -1,7 +1,7 @@
 var tape = require('tape');
 var mrx = require('../')();
 
-tape.test.skip('interface', function (t) {
+tape.test('interface', function (t) {
 
     t.ok(typeof mrx === 'object', 'mrx is Object');
 
@@ -43,31 +43,36 @@ tape.test('base', function (t) {
 tape.test('check', function (t) {
 
     mrx.add(
-        ['https://sub.domain.com/',
-        'http://www.sub.domain.com/index.html',
-        'http://sub.domain.com/?q=bla',
+        ['https://sub.domain.com/bla/',
+        'http://www.sub.domain.com/bla/index.html',
+        'http://sub.domain.com/bla/?q=bla',
         'http://test.sub.domain.com/super/',
         'http://other.domain.com/path/?bla=bla',
         'https://domain.com/login/'],
         'http://www.domain.org/',
         ['http://domain2.com/',
-        'https://sub.domain3.com/index.html']
+        'https://sub.domain3.com/bla/index.html']
     );
 
+    t.throws(function(){mrx.check('ftp://example.ru/');},
+        Error,
+        'checks only http(s) urls');
+
     t.same(mrx.count(), 9, 'count mrx items after group add');
-    var res = mrx.check('http://sub.domain.com/index.html');
+
+    var res = mrx.check('http://sub.domain.com/bla/index.html');
 
     t.same(res.same, false, 'check same link');
 
     t.same(res.similar,
         [
-        'https://sub.domain.com/',
-        'http://www.sub.domain.com/index.html'
+        'https://sub.domain.com/bla/',
+        'http://www.sub.domain.com/bla/index.html'
         ],
         'check similar links');
 
     t.same(res.neighbours,
-        ['http://sub.domain.com/?q=bla'],
+        ['http://sub.domain.com/bla/?q=bla'],
         'check link neighbours');
 
     t.same(res.domains,
@@ -77,6 +82,12 @@ tape.test('check', function (t) {
             'domain': 7
         },
         'check links on similar domains');
+
+    mrx.add ('http://localhost/', 'https://localhost/test');
+
+    t.same(mrx.check('http://localhost/').domains,
+        {'localhost': 2},
+        'check for domain w/o dots');
 
     mrx.clear();
 
