@@ -1,7 +1,7 @@
 var tape = require('tape');
 var mrx = require('../')();
 
-tape.test('interface', function (t) {
+tape.test.skip('interface', function (t) {
 
     t.ok(typeof mrx === 'object', 'mrx is Object');
 
@@ -14,85 +14,158 @@ tape.test('interface', function (t) {
     t.end();
 });
 
-tape.test('base', function (t) {
-
-    t.same(mrx.count(), 0, 'new mrx is empty');
-    t.throws(function(){mrx.add();},
-        Error,
-        'needs something to add');
-    t.throws(function(){mrx.add(1);},
-        Error,
-        'adds only strings');
-
-    mrx.add('http://yandex.ru/');
-    mrx.add('http://rambler.ru/');
-
-    t.same(mrx.count(), 2, 'count mrx items after 2 adds');
-    t.same(mrx.find(/\.ru/).length, 2, 'find by regexp');
-
-    mrx.add(['http://ferra.ru/', 'http://price.ru/'], 'http://ya.ru/');
-
-    t.same(mrx.count(), 5, 'count mrx items after group add');
-    t.ok(mrx.find('http://ya.ru/'), 'find by substring');
-
-    mrx.remove('http://ya.ru/');
-    t.notOk(mrx.find('http://ya.ru/'), 'item removed');
-
-    mrx.clear();
-
-    t.end();
+tape.test('start', function (t) {
+    t.plan(1);
+    mrx.count(function(e, r){
+        t.same([e, r], [null, 0], 'new mrx is empty');
+    });
 });
 
-tape.test('check', function (t) {
+tape.test('add string', function (t) {
+    t.plan(2);
+    mrx.add('http://ya.ru', function(e, r){
+        t.same([e, r], [null, 1], '1 url added');
+        mrx.count(function(e, r){
+            t.same([e, r], [null, 1], '1 item in mrx');
+        });
+    });
+});
 
-    mrx.add(
-        ['https://sub.domain.com/bla/',
+tape.test('add array', function (t) {
+    var a = [
+        'https://sub.domain.com/bla/',
         'http://www.sub.domain.com/bla/index.html',
         'http://sub.domain.com/bla/?q=bla',
         'http://test.sub.domain.com/super/',
         'http://other.domain.com/path/?bla=bla',
-        'https://domain.com/login/'],
+        'https://domain.com/login/',
         'http://www.domain.org/',
-        ['http://domain2.com/',
-        'https://sub.domain3.com/bla/index.html']
-    );
-
-    t.throws(function(){mrx.check('ftp://example.ru/');},
-        Error,
-        'checks only http(s) urls');
-
-    t.same(mrx.count(), 9, 'count mrx items after group add');
-
-    var res = mrx.check('http://sub.domain.com/bla/index.html');
-
-    t.same(res.same, false, 'check same link');
-
-    t.same(res.similar,
-        [
-        'https://sub.domain.com/bla/',
-        'http://www.sub.domain.com/bla/index.html'
-        ],
-        'check similar links');
-
-    t.same(res.neighbours,
-        ['http://sub.domain.com/bla/?q=bla'],
-        'check link neighbours');
-
-    t.same(res.domains,
-        {
-            'sub.domain.com': 4,
-            'domain.com': 6,
-            'domain': 7
-        },
-        'check links on similar domains');
-
-    mrx.add ('http://localhost/', 'https://localhost/test');
-
-    t.same(mrx.check('http://localhost/').domains,
-        {'localhost': 2},
-        'check for domain w/o dots');
-
-    mrx.clear();
-
-    t.end();
+        'http://domain2.com/',
+        'https://sub.domain3.com/bla/index.html',
+        'http://localhost/',
+        'https://localhost/test'];
+    t.plan(2);
+    mrx.add(a, function(e, r){
+        t.same([e, r], [null, 11], '11 urls added');
+        mrx.count(function(e, r){
+            t.same([e, r], [null, 12], '12 items in mrx');
+        });
+    });
 });
+
+
+tape.test('find and remove', function (t) {
+    t.plan(4);
+    mrx.find('http://ya.ru/', function(e, r){
+        t.same([e, r], [null, true], 'find existing url');
+        mrx.remove('http://ya.ru/', function(e, r){
+            t.same([e, r], [null, true], '1 item removed');
+            mrx.count(function(e, r){
+                t.same([e, r], [null, 11], '11 items in mrx');
+                mrx.find('http://ya.ru/', function(e, r){
+                    t.same([e, r], [null, false], 'non existing url');
+                });
+            });
+        });
+    });
+});
+
+tape.test('check1', function (t) {
+    t.plan(5);
+    mrx.check('http://sub.domain.com/bla/index.html', function(e, r){
+        t.same(e, null, 'check passed');
+        t.same(r.same, false, 'no same urls');
+        t.same(r.similar,
+            [
+            'https://sub.domain.com/bla/',
+            'http://www.sub.domain.com/bla/index.html'
+            ],
+            'check similar links');
+        t.same(r.neighbours,
+            ['http://sub.domain.com/bla/?q=bla'],
+            'check link neighbours');
+        t.same(r.domains,
+            {
+                'sub.domain.com': 4,
+                'domain.com': 6,
+                'domain': 7
+            },
+            'check links on similar domains');
+    });
+});
+
+tape.test('check2', function (t) {
+    t.plan(3);
+    mrx.check('http://localhost/', function(e, r){
+        t.same(e, null, 'check passed');
+        t.same(r.same, true, 'same url found');
+        t.same(r.domains, {'localhost': 2}, 'check for domain w/o dots');
+    });
+});
+
+tape.test('check2', function (t) {
+    t.plan(2);
+    mrx.clear(function(e){
+        t.same(e, null, 'mrx cleared');
+        mrx.count(function(e, r){
+            t.same([e, r], [null, 0], 'mrx is empty');
+        });
+    });
+});
+
+
+
+
+// tape.test.skip('check', function (t) {
+
+    // mrx.add(
+    //     ['https://sub.domain.com/bla/',
+    //     'http://www.sub.domain.com/bla/index.html',
+    //     'http://sub.domain.com/bla/?q=bla',
+    //     'http://test.sub.domain.com/super/',
+    //     'http://other.domain.com/path/?bla=bla',
+    //     'https://domain.com/login/'],
+    //     'http://www.domain.org/',
+    //     ['http://domain2.com/',
+    //     'https://sub.domain3.com/bla/index.html']
+    // );
+
+    // t.throws(function(){mrx.check('ftp://example.ru/');},
+    //     Error,
+    //     'checks only http(s) urls');
+
+    // t.same(mrx.count(), 9, 'count mrx items after group add');
+
+    // var res = mrx.check('http://sub.domain.com/bla/index.html');
+
+    // t.same(res.same, false, 'check same link');
+
+    // t.same(res.similar,
+    //     [
+    //     'https://sub.domain.com/bla/',
+    //     'http://www.sub.domain.com/bla/index.html'
+    //     ],
+    //     'check similar links');
+
+    // t.same(res.neighbours,
+    //     ['http://sub.domain.com/bla/?q=bla'],
+    //     'check link neighbours');
+
+    // t.same(res.domains,
+    //     {
+    //         'sub.domain.com': 4,
+    //         'domain.com': 6,
+    //         'domain': 7
+    //     },
+    //     'check links on similar domains');
+
+    // mrx.add ('http://localhost/', 'https://localhost/test');
+
+    // t.same(mrx.check('http://localhost/').domains,
+    //     {'localhost': 2},
+    //     'check for domain w/o dots');
+
+    // mrx.clear();
+
+    // t.end();
+// });
