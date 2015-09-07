@@ -76,32 +76,32 @@ function MRX(){
         if (_type(q) !== 'String' || !/http/i.test(q)) {
             throw new Error('Bad URL for check');
         }
-        var re = /https?:\/\/(?:www\.)?([^/]+)\/([^?]+)?(\?[^#]*)?(#.*)?/i;
-        var u = q.match(re);
-        if(u[2]) {
-            u[2] = u[2].replace('index.html', '');
+        function urlParse(x){
+            var re = /https?:\/\/(?:www\.)?([^/]+)\/([^?]+)?(\?[^#]*)?(#.*)?/i;
+            x = x.match(re);
+            if(x[2]) {
+                x[2] = x[2].replace('index.html', '');
+            }
+            return x;
         }
-        var res = {};
-        res.same = $.indexOf(q) !== -1;
-        res.similar = $.filter(function(v) {
-            v = v.match(re);
-            if(v[2]) {
-                v[2] = v[2].replace('index.html', '');
-            }
-            return v[1] === u[1] && v[2] === u[2] && v[3] === u[3];
-        });
-        res.neighbours = $.filter(function(v) {
-            v = v.match(re);
-            if(v[2]) {
-                v[2] = v[2].replace('index.html', '');
-            }
-            return v[1] === u[1] && v[2] === u[2] && v[3] !== u[3];
-        });
+        var u = urlParse(q);
+        var res = {
+            same: $.indexOf(q) !== -1,
+            similar: $.filter(function(v) {
+                v = urlParse(v);
+                return v[1] === u[1] && v[2] === u[2] && v[3] === u[3];
+            }),
+            neighbours: $.filter(function(v) {
+                v = urlParse(v);
+                return v[1] === u[1] && v[2] === u[2] && v[3] !== u[3];
+            }),
+            domains: {}
+        };
 
-        res.domains = {};
         var a = u[1].split('.');
-        var key;
-        var dCheck = function(v) {return re.test(v);};
+        var re, key;
+        function dCheck(v) {return re.test(v);}
+
         for(var i = 0; i < a.length; i++) {
             if (a.length === 1) {
                 re = ':\\/\\/[^/]*' + a[0] + '(\\/.*|)$';
