@@ -72,9 +72,53 @@ function MRX(){
         throw new Error('Bad query for find');
     };
 
-    this.check = function(){
-        // TODO
-        return {};
+    this.check = function(q){
+        if (_type(q) !== 'String' || !/http/i.test(q)) {
+            throw new Error('Bad URL for check');
+        }
+        var re = /https?:\/\/(?:www\.)?([^/]+)\/([^?]+)?(\?[^#]*)?(#.*)?/i;
+        var u = q.match(re);
+        if(u[2]) {
+            u[2] = u[2].replace('index.html', '');
+        }
+        var res = {};
+        res.same = $.indexOf(q) !== -1;
+        res.similar = $.filter(function(v) {
+            v = v.match(re);
+            if(v[2]) {
+                v[2] = v[2].replace('index.html', '');
+            }
+            return v[1] === u[1] && v[2] === u[2] && v[3] === u[3];
+        });
+        res.neighbours = $.filter(function(v) {
+            v = v.match(re);
+            if(v[2]) {
+                v[2] = v[2].replace('index.html', '');
+            }
+            return v[1] === u[1] && v[2] === u[2] && v[3] !== u[3];
+        });
+
+        res.domains = {};
+        var a = u[1].split('.');
+        var key;
+        var dCheck = function(v) {return re.test(v);};
+        for(var i = 0; i < a.length; i++) {
+            if (a.length === 1) {
+                re = ':\\/\\/[^/]*' + a[0] + '(\\/.*|)$';
+                key = a[0];
+            } else if (i === a.length - 1) {
+                re = ':\\/\\/[^/]*' + a[i-1] + '\\.[^/.]+';
+                key = a[i-1];
+            } else {
+                re = a.slice(i).join('\\.');
+                re = ':\\/\\/[^/]*' + re + '(\\/.*|)$';
+                key = a.slice(i).join('.');
+            }
+            re = new RegExp(re, 'i');
+            res.domains[key] = $.filter(dCheck).length;
+        }
+
+        return res;
     };
 
     this.load = function(filename, enc){ //TEST
