@@ -73,7 +73,6 @@ function MRX(){
             return;
         }
         var u = urlParse(q);
-        //console.log(q);////////
         var res = {
             same: $.indexOf(q) !== -1,
             similar: $.filter(function(v) {
