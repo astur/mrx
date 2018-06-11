@@ -1,6 +1,6 @@
 {
   "name": "mrx",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Checking correlations in weblink array",
   "main": "index.js",
   "author": "astur <astur@yandex.ru> (http://kozlov.am/)",
