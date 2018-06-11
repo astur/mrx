@@ -1,0 +1,6 @@
+{
+    "extends": "astur",
+    "rules": {
+        "callback-return": "off"
+    }
+}
