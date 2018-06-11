@@ -1,6 +1,4 @@
-function MRX(){
-    if(!(this instanceof MRX)) return new MRX();
-
+module.exports = () => {
     const $ = [];
 
     const _type = function(o){
@@ -21,16 +19,16 @@ function MRX(){
         return url;
     };
 
-    this.clear = function(cb){
+    const clear = function(cb){
         $.splice(0, $.length);
-        if(cb) cb(null);
+        cb(null);
     };
 
-    this.count = function(cb){
-        if(cb) cb(null, $.length);
+    const count = function(cb){
+        cb(null, $.length);
     };
 
-    this.add = function(a, cb){
+    const add = function(a, cb){
         if(_type(a) === 'String'){
             a = [a];
         }
@@ -49,15 +47,15 @@ function MRX(){
         }
     };
 
-    this.remove = function(q, cb){
+    const remove = function(q, cb){
         const i = $.indexOf(q);
         if(i > -1){
             $.splice(i, 1);
-            if(cb) cb(null, true);
-        } else if(cb) cb(null, false);
+            cb(null, true);
+        } else cb(null, false);
     };
 
-    this.find = function(q, cb){
+    const find = function(q, cb){
         if(_type(q) === 'String'){
             cb(null, $.indexOf(q) !== -1);
         } else {
@@ -65,7 +63,7 @@ function MRX(){
         }
     };
 
-    this.check = function(q, cb){
+    const check = function(q, cb){
         if(_type(q) !== 'String' || !/http/i.test(q)){
             cb(new Error('Bad URL for check'));
             return;
@@ -103,6 +101,6 @@ function MRX(){
 
         cb(null, res);
     };
-}
 
-module.exports = MRX;
+    return {clear, count, add, remove, find, check};
+};
