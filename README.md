@@ -1,27 +1,8 @@
 # mrx
 
-Checking correlations in weblink array
-
+It is very unstable thing too much far from production. It will be finished someday (...I hope).
 [![Build Status][travis-image]][travis-url]
 [![NPM version][npm-image]][npm-url]
-
-## Install
-
-```bash
-npm install mrx
-```
-
-## Tests
-
-```bash
-$ npm test
-```
-
-## Usage
-
-```js
-var mrx = require('mrx')();
-```
 
 ## License
 
