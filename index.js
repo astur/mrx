@@ -1,22 +1,19 @@
+const {format, parse} = require('url');
+
 module.exports = () => {
     const $ = [];
 
     const _type = function(o){
         return Object.prototype.toString.call(o).split(' ')[1].slice(0, -1);
     };
-    const pureUrl = function(url){
-        if(/\/\/[^/]+$/i.test(url)){
-            url += '/';
-        }
-        return url;
-    };
-    const urlParse = function(url){
-        const re = /https?:\/\/(?:www\.)?([^/]+)\/([^?]+)?(\?[^#]*)?(#.*)?/i;
-        url = url.match(re);
-        if(url[2]){
-            url[2] = url[2].replace('index.html', '');
-        }
-        return url;
+
+    const compareUrl = (uu, vv, strict) => {
+        const u = parse(uu);
+        const v = parse(vv);
+        if(v.host.replace(/^www./, '') !== u.host.replace(/^www./, '')) return false;
+        if(v.pathname.replace(/index.html$/, '') !== u.pathname.replace(/index.html$/, '')) return false;
+        if(v.query === u.query) return strict;
+        return !strict;
     };
 
     const clear = function(cb){
@@ -33,10 +30,12 @@ module.exports = () => {
             a = [a];
         }
         if(_type(a) === 'Array'){
-            a.forEach(a => {
-                if(_type(a) === 'String'){
-                    a = pureUrl(a);
-                    $.push(a);
+            a.forEach(v => {
+                if(_type(v) === 'String'){
+                    v = parse(v);
+                    v.auth = null;
+                    v = format(v);
+                    $.push(v);
                 } else {
                     cb(new Error('Bad data'));
                 }
@@ -68,34 +67,18 @@ module.exports = () => {
             cb(new Error('Bad URL for check'));
             return;
         }
-        const u = urlParse(q);
         const res = {
             same: $.indexOf(q) !== -1,
-            similar: $.filter(v => {
-                v = urlParse(v);
-                return v[1] === u[1] && v[2] === u[2] && v[3] === u[3];
-            }),
-            neighbours: $.filter(v => {
-                v = urlParse(v);
-                return v[1] === u[1] && v[2] === u[2] && v[3] !== u[3];
-            }),
+            similar: $.filter(v => compareUrl(q, v, true)),
+            neighbours: $.filter(v => compareUrl(q, v, false)),
             domains: {},
         };
-
-        u[1].split('.').forEach((v, i, a) => {
-            let re;
-            let key;
-            if(a.length === 1){
-                re = `:\\/\\/[^/]*${a[0]}(\\/.*|)$`;
-                key = a[0];
-            } else if(i === a.length - 1){
-                re = `:\\/\\/[^/]*${a[i - 1]}\\.[^/.]+`;
-                key = a[i - 1];
-            } else {
-                re = `:\\/\\/[^/]*${a.slice(i).join('\\.')}(\\/.*|)$`;
-                key = a.slice(i).join('.');
-            }
-            re = new RegExp(re, 'i');
+        parse(q).hostname.split('.').forEach((v, i, a) => {
+            const [key, re] = a.length === 1 ?
+                [a[0], new RegExp(`:\\/\\/[^/]*${a[0]}(\\/.*|)$`, 'i')] :
+                i === a.length - 1 ?
+                    [a[i - 1], new RegExp(`:\\/\\/[^/]*${a[i - 1]}\\.[^/.]+`, 'i')] :
+                    [a.slice(i).join('.'), new RegExp(`:\\/\\/[^/]*${a.slice(i).join('\\.')}(\\/.*|)$`, 'i')];
             res.domains[key] = $.filter(v => re.test(v)).length;
         });
 
