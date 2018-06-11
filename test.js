@@ -20,10 +20,14 @@ test('base', async t => {
         'https://localhost/test',
     ]), 11);
     t.is(await mrx.count(), 12);
+    await t.throws(mrx.add(1));
+    await t.throws(mrx.add([1]));
     t.true(await mrx.find('http://ya.ru/'));
     t.true(await mrx.remove('http://ya.ru/'));
+    t.false(await mrx.remove('http://ya.ru/'));
     t.is(await mrx.count(), 11);
     t.false(await mrx.find('http://ya.ru/'));
+    await t.throws(mrx.find(1));
     t.deepEqual(await mrx.check('http://sub.domain.com/bla/index.html'), {
         same: false,
         similar: [
@@ -43,6 +47,8 @@ test('base', async t => {
         neighbours: [],
         domains: {localhost: 2},
     });
+    await t.throws(mrx.check(1));
+    await t.throws(mrx.check('1'));
     await mrx.clear();
     t.is(await mrx.count(), 0);
 });
